@@ -7,13 +7,13 @@ app = Flask(__name__)
 def index():
     return url_for('show_user_profile', username = 'richard')
 
-#método GET (botão para submitt)
-@app.route('/login', methods=['GET'])
+#método GET e POST (botão para submitt) POST tem mais segurança por não aparece o q foi digitado na url
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.values:
+    if request.method == 'POST':
         return 'username is ' + str(request.values["username"])
     else: 
-        return '<form method="get" action="/login"><input type="text" name="username" /><p><button type="submitt">Submit</button></form>'
+        return '<form method="post" action="/login"><input type="text" name="username" /><p><button type="submitt">Submit</button></form>'
 
 @app.route('/username/<username>')
 def show_user_profile(username):
