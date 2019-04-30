@@ -1,19 +1,24 @@
 import os
 
-from flask import Flask, url_for, request
+from flask import Flask, url_for, request, render_template
 app = Flask(__name__)
+
+#TEMPLATE ================================
+@app.route('/hello')
+@app.route('/hello/<name>')
+def hello(name = None):
+    return render_template('hello.html', name=name)
 
 @app.route('/')
 def index():
     return url_for('show_user_profile', username = 'richard')
 
-#método GET e POST (botão para submitt) POST tem mais segurança por não aparece o q foi digitado na url
+#método GET e POST 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        return 'username is ' + str(request.values["username"])
-    else: 
-        return '<form method="post" action="/login"><input type="text" name="username" /><p><button type="submitt">Submit</button></form>'
+        return "User %s logged in" % request.form['username']
+    return render_template('login.html')
 
 @app.route('/username/<username>')
 def show_user_profile(username):
