@@ -1,13 +1,10 @@
 import os
 
-from flask import Flask, url_for, request, render_template, redirect, flash
+from flask import Flask, url_for, request, render_template, redirect, flash, session
 app = Flask(__name__)
 
-#TEMPLATE ================================
-@app.route('/hello')
-@app.route('/hello/<name>')
-def hello(name = None):
-    return render_template('hello.html', name=name)
+import logging
+from logging.handlers import RotatingFileHandler
 
 #método GET e POST 
 @app.route('/login', methods=['GET', 'POST'])
@@ -16,10 +13,19 @@ def login():
     if request.method == 'POST':
         if valid_login(request.form['username'], request.form['password']):
             flash("Succesfully logged in")
-            return redirect(url_for('welcome', username = request.form.get('username')))
+            session['username'] = request.form.get('username')
+            return redirect(url_for('welcome'))
         else:
             error = 'Incorret username and password'
+            app.logger.warning("Incorret username and password for user (%s)",
+                                request.form.get('username'))
+
     return render_template('login.html', error = error)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 def valid_login(username, password):
     if username == password:
@@ -27,13 +33,22 @@ def valid_login(username, password):
     else:
         return False
 
-@app.route('/welcome/<username>')
-def welcome(username):
-    return render_template('welcome.html', username=username)
+@app.route('/')
+def welcome():
+    if 'username' in session:
+        return render_template('welcome.html', username=session['username'])
+    else: 
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     host = os.getenv('IP', '0.0.0.0')
     port = int(os.getenv('PORT', '5000'))
     app.debug = True
-    app.secret_key = 'SuperSecretKey'
+    app.secret_key = '\x13q[\x171\xe6j\x08;\x1f\n\xeb\xa90\xd5%\xd8Z\xd0\xe0j\x0c\t\xfc'
+
+    #logging
+    handler = RotatingFileHandler('error.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+    
     app.run(host = host, port = port)
