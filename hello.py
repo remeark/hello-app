@@ -31,7 +31,7 @@ def logout():
 def valid_login(username, password):
     # mysql 
     MYSQL_DATABASE_HOST = os.getenv('IP', '0.0.0.0')
-    MYSQL_DATABASE_USER = 'malmeida'
+    MYSQL_DATABASE_USER = 'root'
     MYSQL_DATABASE_PASSWORD = ''
     MYSQL_DATABASE_DB = 'my_flask_app'
 
